@@ -480,7 +480,9 @@ class Pesh_b(pygame.sprite.Sprite):
             ij = i[1]
             for obj in all_sprits:
                 if isinstance(obj, King) and obj.color != self.color and obj.rect.x == ij*80 and obj.rect.y == ii*80:
-                    game.danger(obj.rect.x, obj.rect.y)
+                    game.flag_shax = True
+                    game.xSH = ij*80
+                    game.ySH = ii*80
 
 class Lad(pygame.sprite.Sprite):
     def __init__(self):
@@ -890,58 +892,42 @@ class Kon(pygame.sprite.Sprite):
         g = y - 2
         gg = x + 1
         if gg < 8 and g > -1:
-            if not (desk[g][gg]):
-                self.maybe.append((g, gg))
-            elif bool(desk[g][gg] - 1) != self.color:
+            if bool(desk[g][gg] - 1) != self.color:
                 self.maybe_shax.append((g, gg))
         g = y - 2
         gg = x - 1
         if gg > -1 and g > -1:
-            if not (desk[g][gg]):
-                self.maybe.append((g, gg))
-            elif bool(desk[g][gg] - 1) != self.color:
+            if bool(desk[g][gg] - 1) != self.color:
                 self.maybe_shax.append((g, gg))
         g = y + 2
         gg = x + 1
         if gg < 8 and g < 8:
-            if not (desk[g][gg]):
-                self.maybe.append((g, gg))
-            elif bool(desk[g][gg] - 1) != self.color:
+            if bool(desk[g][gg] - 1) != self.color:
                 self.maybe_shax.append((g, gg))
         g = y + 2
         gg = x - 1
         if gg > -1 and g < 8:
-            if not (desk[g][gg]):
-                self.maybe.append((g, gg))
-            elif bool(desk[g][gg] - 1) != self.color:
+            if bool(desk[g][gg] - 1) != self.color:
                 self.maybe_shax.append((g, gg))
         g = y + 1
         gg = x - 2
         if gg > -1 and g < 8:
-            if not (desk[g][gg]):
-                self.maybe.append((g, gg))
-            elif bool(desk[g][gg] - 1) != self.color:
+            if bool(desk[g][gg] - 1) != self.color:
                 self.maybe_shax.append((g, gg))
         g = y - 1
         gg = x - 2
         if gg > -1 and g > -1:
-            if not (desk[g][gg]):
-                self.maybe.append((g, gg))
-            elif bool(desk[g][gg] - 1) != self.color:
+            if bool(desk[g][gg] - 1) != self.color:
                 self.maybe_shax.append((g, gg))
         g = y + 1
         gg = x + 2
         if gg < 8 and g < 8:
-            if not (desk[g][gg]):
-                self.maybe.append((g, gg))
-            elif bool(desk[g][gg] - 1) != self.color:
+            if bool(desk[g][gg] - 1) != self.color:
                 self.maybe_shax.append((g, gg))
         g = y - 1
         gg = x + 2
         if gg < 8 and g > -1:
-            if not (desk[g][gg]):
-                self.maybe.append((g, gg))
-            elif bool(desk[g][gg] - 1) != self.color:
+            if bool(desk[g][gg] - 1) != self.color:
                 self.maybe_shax.append((g, gg))
 
         for i in self.maybe_shax:
@@ -949,7 +935,9 @@ class Kon(pygame.sprite.Sprite):
             ij = i[1]
             for obj in all_sprits:
                 if isinstance(obj, King) and obj.color != self.color and obj.rect.x == ij*80 and obj.rect.y == ii*80:
-                    game.danger(obj.rect.x, obj.rect.y)
+                    game.flag_shax = True
+                    game.xSH = ij * 80
+                    game.ySH = ii * 80
 
 class Slon(pygame.sprite.Sprite):
     def __init__(self):
@@ -1598,13 +1586,14 @@ class Game():
         self.weight = 640
         self.height = 640
         self.run = True
-        self.win = pygame.display.set_mode((self.weight, self.height))
+        self.win = pygame.display.set_mode((self.weight, self.height), pygame.FULLSCREEN)
         self.count_GO = 0
         self.count_shax = 0
+        self.flag_shax = False
 
         self.x_rect = 150
         self.y_rect = 150
-        self.particl_surf = pygame.Surface((self.weight, self.height))
+        self.particl_surf = pygame.Surface((self.weight, self.height), pygame.FULLSCREEN)
         self.particl_surf.set_colorkey(material.BLACK)
 
         self.run_parad = True
@@ -1691,11 +1680,10 @@ class Game():
 
     def running(self):
         global Count, BList
-        xSH = 0
-        ySH = 0
+        self.xSH = 0
+        self.ySH = 0
         count = Count
         fl = True
-        flag_shax = False
         while self.run:
             clock.tick(material.FPS)
             self.win.blit(material.board, (0, 0))
@@ -1703,8 +1691,8 @@ class Game():
             Click()
             self.win.blit(self.particl_surf, (0, 0))
             self.particl_surf.fill(material.BLACK)
-            if flag_shax:
-                self.danger(xSH, ySH)
+            if self.flag_shax:
+                self.danger(self.xSH, self.ySH)
             for obj in all_sprits:
                 if isinstance(obj, Pesh_b):
                     if obj.count_hod < Count - 1:
@@ -1715,12 +1703,13 @@ class Game():
 
             if count != Count and fl:
                 fl = False
-                flag_shax = False
+                self.flag_shax = False
                 BList = []
                 for obj in all_sprits:
                     if not(obj in BList):
                         if isinstance(obj, Pesh_b) or isinstance(obj, Kon):
                             obj.shax()
+                            obj.maybe_shax = []
                         elif isinstance(obj, Lad) or isinstance(obj, Slon) or isinstance(obj, Ferz):
                             obj.shax()
                             for oj in all_sprits:
@@ -1732,9 +1721,9 @@ class Game():
                                     if z[1] * 80 == oj.rect.x and z[0] * 80 == oj.rect.y:
                                         if j == 0:
                                             self.count_shax += 1
-                                            flag_shax = True
-                                            xSH = z[1] * 80
-                                            ySH = z[0] * 80
+                                            self.flag_shax = True
+                                            self.xSH = z[1] * 80
+                                            self.ySH = z[0] * 80
                                         elif j == 1:
                                             for gog in all_sprits:
                                                 if gog.rect.x == i[j-1][1]*80 and gog.rect.y == i[j-1][0]*80:
